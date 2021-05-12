@@ -6,7 +6,6 @@ class ShowTitle extends StatelessWidget {
 
   int index;
 
-
   ShowTitle({@required this.title, this.index});
 
   TextStyle h1Style() => TextStyle(
@@ -23,15 +22,24 @@ class ShowTitle extends StatelessWidget {
         fontSize: 14,
         fontWeight: FontWeight.normal,
       );
-
+  TextStyle h4Style() => TextStyle(
+        fontSize: 16,
+        fontWeight: FontWeight.w700,
+        color: Colors.white,
+      );
 
   @override
   Widget build(BuildContext context) {
-      List<TextStyle> textStyles =[h1Style(),h2Style(),h3Style(),];
+    List<TextStyle> textStyles = [
+      h1Style(),
+      h2Style(),
+      h3Style(),
+      h4Style(),
+    ];
 
-      if (index == null) {
-      index = 2;  
-      }
+    if (index == null) {
+      index = 2;
+    }
 
     return Text(
       title,

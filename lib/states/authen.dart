@@ -7,6 +7,7 @@ import 'package:golfpeaofficer/utility/dialog.dart';
 import 'package:golfpeaofficer/utility/my_constant.dart';
 import 'package:golfpeaofficer/widgets/show_image.dart';
 import 'package:golfpeaofficer/widgets/show_title.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Authen extends StatefulWidget {
   @override
@@ -68,7 +69,7 @@ class _AuthenState extends State<Authen> {
     String api =
         '${MyConstant.domain}/boyproj/getUserWhereUser.php?isAdd=true&user=$user';
     await Dio().get(api).then(
-      (value) {
+      (value) async {
         print('### value ==> $value');
         if (value.toString() == 'null') {
           normalDialog(context, 'User Failed!!!!', 'No $user in Database');
@@ -77,9 +78,15 @@ class _AuthenState extends State<Authen> {
             UserModel model = UserModel.fromMap(item);
 
             if (password == model.password) {
+              print('### Remember $remember');
+
+              //remember = true  ติ๊ก
               if (remember) {
-              
-              
+                SharedPreferences preferences =
+                    await SharedPreferences.getInstance();
+                preferences.setString('name', model.name);
+                preferences.setString('employedid', model.employedid);
+                routeToService();
               } else {
                 routeToService();
               }
