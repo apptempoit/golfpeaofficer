@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:golfpeaofficer/models/information_model.dart';
 import 'package:golfpeaofficer/models/user_model.dart';
 import 'package:golfpeaofficer/utility/dialog.dart';
 import 'package:golfpeaofficer/utility/my_constant.dart';
@@ -65,16 +66,20 @@ class _AuthenState extends State<Authen> {
 //Thread
   Future<Null> checkAuthen(String user, String password) async {
     print('## user = $user, pass = $password');
-
+/*
     String api =
         '${MyConstant.domain}/boyproj/getUserWhereUser.php?isAdd=true&user=$user';
+ 
+ */
+ String api =
+        'https://wesafe.pea.co.th/webservicejson/api/values/GetUser/$user';
+ 
+ print('#### api Authen ==> $api');
     await Dio().get(api).then(
       (value) async {
         print('### value ==> $value');
-        if (value.toString() == 'null') {
-          normalDialog(context, 'User Failed!!!!', 'No $user in Database');
-        } else {
-          for (var item in json.decode(value.data)) {
+
+    for (var item in value.data) {
             UserModel model = UserModel.fromMap(item);
 
             if (password == model.password) {
@@ -82,22 +87,44 @@ class _AuthenState extends State<Authen> {
 
               //remember = true  ติ๊ก
               if (remember) {
-                SharedPreferences preferences =
-                    await SharedPreferences.getInstance();
-                preferences.setString('name', model.name);
-                preferences.setString('employedid', model.employedid);
-                routeToService();
+//Temporary
+//https://wesafe.pea.co.th/webservicejson/api/values/job/900000
+                String path =
+                    'https://wesafe.pea.co.th/webservicejson/api/values/job/${model.employedid}';
+                await Dio().get(path).then((value) async {
+                  for (var item in value.data) {
+                    InfomationModel infomationModel =
+                        InfomationModel.fromJson(item);
+
+                    SharedPreferences preferences =
+                        await SharedPreferences.getInstance();
+                    preferences.setString(
+                        MyConstant.keyFIRST_NAME, infomationModel.fIRSTNAME);
+                    preferences.setString(
+                        MyConstant.keyLAST_NAME, infomationModel.lASTNAME);
+                    preferences.setString(
+                        MyConstant.keyEmployedid, infomationModel.eMPLOYEEID);
+                    preferences.setString(
+                        MyConstant.keyDEPTNAME, infomationModel.dEPTNAME);
+                    preferences.setString(
+                        MyConstant.keyREGIONCODE, infomationModel.rEGIONCODE);
+                    preferences.setString(
+                        MyConstant.keyTEAM, infomationModel.tEAM);
+                    routeToService();
+                  }
+                });
               } else {
                 routeToService();
               }
             } else {
               normalDialog(context, "Password Wrong!!!", 'Please try again');
             }
-          }
-        }
+          }// end for
+
+
+
       },
-    );
-  }
+    ).catchError((onError)=>normalDialog(context, 'User False', 'User False Try Again'));  }
 
   Future<Object> routeToService() {
     return Navigator.pushNamedAndRemoveUntil(
